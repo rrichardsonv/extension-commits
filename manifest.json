@@ -1,0 +1,18 @@
+{
+  "example-event-spec": {
+    "eventType": "log_impression_event",
+    "description": "Describe what triggers the event. Used for documentation only.",
+    "collections": ["als", "activity"],
+    "additional": {
+      "hardcoded_keys": "go-here"
+    }
+  },
+  "signin-google-one-tap": {
+    "eventType": "log_click_event",
+    "description": "Click event when a user signs in with Google One Tap.",
+    "collections": ["als"],
+    "additional": {
+      "web_page_type_to": "profiles/signin-google-one-tap"
+    }
+  }
+}

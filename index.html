@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <h1>Global Event Tracking</h1>
+    <p>
+      Links, and Buttons will automatically be tracked.
+
+      <a href="#" title="Double click to open popup" data-poopup-trigger="sik-lonks">Other things</a> will not be tracked.
+    </p>
+
+    <p><a href="#">Link: Generic Tracking</a></p>
+    <p><a href="#" shapow="signin-google-one-tap">Link: Enhanced Tracking</a></p>
+    <p><button shapow="bad-event">Button: Generic Tracking</button></p>
+    <p><button shapow="signup-google-one-tap">Button: Enhanced Tracking</button></p>
+
+    <h3>Event Log</h3>
+    <textarea id="event-log"></textarea>
+
+    <label>Console
+      <textarea id="output" rows="6" cols="70">Click around on the things on the page...</textarea>
+    </label>
+
+    <poopup-window
+      class="hidden"
+      turtle="Will maybe be tracked"
+      id="sik-lonks"
+      height="160"
+      width="140"
+    >
+      <ol slot="content">
+        <li>
+         <comic-spans>
+           <a href="#" shapow="signin-google-one-tap">Lonk</a>
+         </comic-spans>
+        </li>
+        <li>
+         <comic-spans>
+           <button type="button" shapow="signup-google-one-tap">Booton</button>
+         </comic-spans>
+        </li>
+      </ol>
+    </poopup-window>
+    <script src="./main.js"></script>
+    <script>
+      /* Simple base class */
+      class EzElement extends HTMLElement {
+        shadow = null;
+
+        get stylez () {
+          return `:host {display: block}`;
+        }
+
+        constructor () {
+          super();
+          this.shadow = this.attachShadow({ mode: 'open' });
+        }
+
+        static get observedAttributes () {
+          return [];
+        }
+
+        attributeChangedCallback(name, _oldValue, newValue) {
+          this[name] = newValue;
+          this.update();
+        }
+
+        connectedCallback () {
+          this.update();
+        }
+
+        update () {
+          const nextRender = this.render();
+          if (nextRender) {
+            this.shadow.innerHTML = nextRender;
+          }
+          const style = document.createElement('style');
+          style.textContent = this.stylez;
+          this.shadow.appendChild(style);
+        }
+
+        render () { return null; }
+      }
+
+      // Link or button wrapper
+      class PoopupWindow extends EzElement {
+        get stylez () {
+          return `
+            :host {height: ${this.height || 200}px;width: ${this.width || 200}px;position: fixed;z-index: 2;top: 0;left: 0;}
+            :host.hidden { display: none; }
+            :host [poopup] { display: inline-block; width: 100%; height: 100%; border: 0.2em solid #4d4d4d; box-shadow: inset 0 12px 0 0 #040082; background: #c3c3c3; border-top-color: #e5e5e5; border-left-color: #e5e5e5; display: grid; grid-template-rows: 12px min-content auto; grid-template-columns: auto 14px; grid-template-areas: "title close" "banner banner" "body body"; }
+            :host .close-btn { grid-area: close; padding: 0; line-height: 0.8; font-size: 12px; height: calc(100% - 3px); margin-top: 1px; outline: none; box-shadow: inset 0 0 0 1px #d3d3d3; font-weight: bolder; box-sizing: border-box; border: none; }
+            :host .title { background: transparent; color: #fff; font-size: 10px; }
+            :host .body { grid-area: body; width: auto; height: calc(100% - 32px); display: grid; padding: 16px 8px; grid-template-columns: 75fr 25fr; grid-template-rows: 75fr 25fr; column-gap: 8px; }
+            :host .sidebar-layout { grid-template-areas: "content sidebar" "content sidebar"; }
+            :host .body > .content { grid-area: content; }
+            :host .sidebar-layout > .action { grid-area: sidebar; background: blue; }
+            :host .footer-layout { grid-template-areas: "content content" "footer footer"; }
+            :host .footer-layout > .action { grid-area: footer; }
+          `;
+        }
+
+        // @property
+        static get observedAttributes () {
+          return ['turtle', 'width', 'height'];
+        }
+        
+        connectedCallback () {
+          super.connectedCallback();
+          // bind opener
+          if (this.id) {
+            const trigger = document.querySelector(`[data-poopup-trigger="${this.id}"]`);
+            trigger.addEventListener('dblclick', (ev) => {
+              ev.preventDefault();
+              this.classList.remove('hidden');
+              this.shadow.querySelector('button').addEventListener('click', (ev) => {
+                this.handleClick(ev)
+              });
+            });
+          }
+        }
+        
+        handleClick (ev) {
+          ev.preventDefault();
+          this.style.display = 'none';
+        }
+        
+        render () {
+          return `
+          <div poopup>
+          <span class="title">${this.turtle}</span>
+          <button class="close-btn" type="button">x</button>
+          <div class="body footer-layout">
+            <div class="content">
+              <slot name="content"></slot>
+            </div>
+          </div>
+        </div>
+          `;
+        }
+      }
+
+      if (!customElements.get('poopup-window')) {
+        customElements.define('poopup-window', PoopupWindow);  
+      }
+
+      // Link or button wrapper
+      class ComicSpans extends EzElement {
+        get stylez () {
+          return `
+          :host ::slotted(*) {
+            font-family: "Comic Sans MS", "Comic Sans", cursive !important;
+          }
+          `;
+        }
+
+        render () {
+          return `<slot></slot>`
+        }
+      }
+
+      // @customElement
+      if (!customElements.get('comic-spans')) {
+        customElements.define('comic-spans', ComicSpans);  
+      }
+    </script>
+  </body>
+</html>
