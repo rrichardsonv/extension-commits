@@ -14,5 +14,13 @@
     "additional": {
       "web_page_type_to": "profiles/signin-google-one-tap"
     }
+  },
+  "specific-link-click": {
+    "eventType": "log_click_event",
+    "description": "Click event when a user signs up with Google One Tap.",
+    "collections": ["als"],
+    "additional": {
+      "web_page_type_to": "profiles/other-profiles"
+    }
   }
 }
